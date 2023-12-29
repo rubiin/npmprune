@@ -1,10 +1,10 @@
 #!/bin/sh
 
-TARGET_DIR=node_modules
+TARGET_DIR="node_modules"
 
-if [ ! -d $TARGET_DIR ]; then
-	echo "$TARGET_DIR" does not exist
-	exit 1
+if [ ! -d "$TARGET_DIR" ]; then
+    echo "$TARGET_DIR does not exist"
+    exit 1
 fi
 
 PATTERNS="
@@ -98,38 +98,27 @@ PROD_PATTERNS="
 	*.ts
 "
 
+if [ "$NODE_ENV" != "production" ]; then
+    echo "$TARGET_DIR size before: $(du -sh "$TARGET_DIR" | awk '{print $1}')"
+fi
+
+patterns="$PATTERNS"
 if [ "$NODE_ENV" = "production" ]; then
-	PATTERNS="$PATTERNS $PROD_PATTERNS"
+    patterns="$patterns $PROD_PATTERNS"
 fi
 
-if [ ! "$NODE_ENV" = "production" ]; then
-	echo "$TARGET_DIR size before: $(du -sh $TARGET_DIR | awk '{print $1}')"
-fi
-
-find_cmd="find $TARGET_DIR \("
+find_cmd="find $TARGET_DIR \( "
 first_pattern=true
-printf '%s\n' "$PATTERNS" | (
-	while IFS= read -r line; do
-		line=$(echo "$line" | xargs)
 
-		# skip empty lines
-		if [ -z "$line" ]; then
-			continue
-		fi
+for pattern in $patterns; do
+    find_cmd="$find_cmd $([ "$first_pattern" = true ] && echo "" || echo "-o") -iname '$pattern'"
+    first_pattern=false
+done
 
-		# add -o if not the first pattern
-		if [ "$first_pattern" = false ]; then
-			find_cmd="$find_cmd -o"
-		else
-			first_pattern=false
-		fi
+find_cmd="$find_cmd \) -delete"
 
-		find_cmd="$find_cmd -iname '$line'"
-	done
+eval "$find_cmd"
 
-	eval "$find_cmd \) -exec rm -rf {} +"
-)
-
-if [ ! "$NODE_ENV" = "production" ]; then
-	echo "$TARGET_DIR size after:  $(du -sh $TARGET_DIR | awk '{print $1}')"
+if [ "$NODE_ENV" != "production" ]; then
+    echo "$TARGET_DIR size after:  $(du -sh "$TARGET_DIR" | awk '{print $1}')"
 fi
