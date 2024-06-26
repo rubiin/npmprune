@@ -80,7 +80,8 @@ $patterns = @(
 # Production patterns
 $prodPatterns = @(
 	"*.map",
-	"*.ts"
+	"*.ts",
+	"*.mts"
 )
 
 # Include production patterns if '-p' is passed
