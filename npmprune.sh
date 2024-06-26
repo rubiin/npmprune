@@ -3,8 +3,8 @@
 TARGET_DIR="node_modules"
 
 if [ ! -d "$TARGET_DIR" ]; then
-    echo "$TARGET_DIR does not exist"
-    exit 1
+	echo "$TARGET_DIR does not exist"
+	exit 1
 fi
 
 PATTERNS="
@@ -41,6 +41,7 @@ PATTERNS="
 	*eslint*
 	*htmllint*
 	*jshint*
+	*.lcov
 	*readme*
 	*stylelint*
 	*travis*
@@ -72,19 +73,25 @@ PATTERNS="
 	LICENSE*
 	LICENCE*
 	makefile
-	npm-debug.log
+	Justfile
+	.yarn-integrity
 	powered-test
+	logs
+	*.logs
+	npm-debug.log*
+	yarn-debug.log*
+	yarn-error.log*
+	lerna-debug.log*
+	.pnpm-debug.log*
+	.yarn-integrity
 	prettier.*
 	test
 	tests
 	tsconfig.json
-	.nyc_output
-	.gitattributes
 	.flowconfig
 	.yo-rc.json
 	images
 	assets
-	.github
 	.circleci
 	website
 	powered-test
@@ -98,21 +105,21 @@ PROD_PATTERNS="
 	*.ts
 "
 
-if [ "$NODE_ENV" != "production" ]; then
-    echo "$TARGET_DIR size before: $(du -sh "$TARGET_DIR" | awk '{print $1}')"
-fi
-
 patterns="$PATTERNS"
 if [ "$NODE_ENV" = "production" ]; then
-    patterns="$patterns $PROD_PATTERNS"
+	patterns="$patterns $PROD_PATTERNS"
+fi
+
+if [ "$NODE_ENV" != "production" ]; then
+	echo "$TARGET_DIR size before: $(du -sh "$TARGET_DIR" | awk '{print $1}')"
 fi
 
 find_cmd="find $TARGET_DIR \( "
 first_pattern=true
 
 for pattern in $patterns; do
-    find_cmd="$find_cmd $([ "$first_pattern" = true ] && echo "" || echo "-o") -iname '$pattern'"
-    first_pattern=false
+	find_cmd="$find_cmd $([ "$first_pattern" = true ] && echo "" || echo "-o") -iname '$pattern'"
+	first_pattern=false
 done
 
 find_cmd="$find_cmd \) -delete"
@@ -120,5 +127,5 @@ find_cmd="$find_cmd \) -delete"
 eval "$find_cmd"
 
 if [ "$NODE_ENV" != "production" ]; then
-    echo "$TARGET_DIR size after:  $(du -sh "$TARGET_DIR" | awk '{print $1}')"
+	echo "$TARGET_DIR size after:  $(du -sh "$TARGET_DIR" | awk '{print $1}')"
 fi
