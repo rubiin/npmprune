@@ -89,10 +89,8 @@ PATTERNS="
 	tests
 	tsconfig.json
 	.flowconfig
-	.yo-rc.json
 	images
 	assets
-	.circleci
 	website
 	powered-test
 	demo
@@ -104,8 +102,8 @@ PROD_PATTERNS="
 	*.mts
 	*.ts
 "
-
 patterns="$PATTERNS"
+
 if [ "$NODE_ENV" = "production" ]; then
 	patterns="$patterns $PROD_PATTERNS"
 fi
